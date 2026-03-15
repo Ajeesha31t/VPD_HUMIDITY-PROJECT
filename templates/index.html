@@ -143,8 +143,33 @@ tbody td{padding:12px 16px;color:var(--text);white-space:nowrap;background:trans
 ::-webkit-scrollbar{width:5px}
 ::-webkit-scrollbar-track{background:var(--bg)}
 ::-webkit-scrollbar-thumb{background:var(--border2);border-radius:3px}
-@media(max-width:900px){.cgrid,.igrid,.metrics{grid-template-columns:1fr 1fr}.cc.full{grid-column:1}}
-@media(max-width:600px){.cgrid,.igrid,.metrics{grid-template-columns:1fr}.cc.full{grid-column:1}}
+@media(max-width:900px){
+  .cgrid,.igrid,.metrics{grid-template-columns:1fr 1fr}
+  .cc.full{grid-column:1}
+  .predictor-grid{grid-template-columns:1fr}
+  .wc-value{font-size:2rem}
+}
+@media(max-width:600px){
+  .cgrid,.igrid,.metrics{grid-template-columns:1fr}
+  .cc.full{grid-column:1}
+  .predictor-grid{grid-template-columns:1fr}
+  .mbar{gap:6px}
+  .mbtn{padding:7px 12px;font-size:.75rem}
+  .wrap{padding:0 14px 60px}
+  .brand h1{font-size:1.2rem}
+  .wc-value{font-size:1.8rem}
+  .mc-val{font-size:1.5rem}
+  .igrid{grid-template-columns:1fr 1fr}
+  .live-grid{grid-template-columns:1fr 1fr}
+  .export-panel{padding:16px}
+  table{font-size:.75rem}
+}
+@media(max-width:400px){
+  .live-grid{grid-template-columns:1fr}
+  .igrid{grid-template-columns:1fr}
+  .pred-result{grid-template-columns:1fr}
+  .mbtn{padding:6px 10px;font-size:.7rem}
+}
 </style>
 </head>
 <body>
