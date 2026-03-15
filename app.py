@@ -123,7 +123,11 @@ def load():
         return joblib.load(PKL)
     return train_all()
 
-RESULTS = load()
+try:
+    RESULTS = load()
+except Exception as e:
+    print(f"Error loading models: {e}")
+    RESULTS = {}
 
 def predict_row(year, doy, t2m):
     row = np.array([[year, doy, t2m,

@@ -150,6 +150,15 @@ tbody td{padding:12px 16px;color:var(--text);white-space:nowrap;background:trans
   .wc-value{font-size:2rem}
 }
 @media(max-width:600px){
+/* Fix table columns cut off */
+.r2-bar{flex-direction:column;align-items:flex-start;gap:4px}
+.r2-track{width:60px}
+tbody td{padding:8px 10px;font-size:.72rem}
+thead th{padding:8px 10px;font-size:.58rem}
+
+/* Fix predict panel 4-column grid on small screen */
+#inModel,#inYear,#inMonth,#inDate{font-size:.8rem}
+.igrid[style*="repeat(4"]{grid-template-columns:1fr 1fr !important}
   .cgrid,.igrid,.metrics{grid-template-columns:1fr}
   .cc.full{grid-column:1}
   .predictor-grid{grid-template-columns:1fr}
