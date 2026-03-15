@@ -1,0 +1,663 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Climate ML — Coimbatore</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet"/>
+<style>
+:root{
+  --bg:#05080f;--card:#0f1729;--border:#162035;--border2:#1d2d4a;
+  --cyan:#00e5ff;--purple:#a855f7;--green:#22d3a0;--amber:#fbbf24;--rose:#fb7185;
+  --text:#f0f4ff;--muted:#4a6080;--soft:#8ba0bc;
+  --accent:#00e5ff;--accent2:#7c3aff;--warn:#f5c400;--success:#00d68f;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font-family:'Outfit',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden}
+canvas#bg{position:fixed;inset:0;z-index:0;pointer-events:none}
+#loader{position:fixed;inset:0;z-index:999;background:var(--bg);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:24px;transition:opacity .5s}
+.ld-icon{width:72px;height:72px;border-radius:20px;background:linear-gradient(135deg,var(--cyan),var(--purple));display:flex;align-items:center;justify-content:center;font-size:32px;box-shadow:0 0 40px rgba(0,229,255,.4);animation:fl 2s ease-in-out infinite}
+@keyframes fl{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
+.ld-bar{width:220px;height:3px;background:var(--border2);border-radius:999px;overflow:hidden}
+.ld-fill{height:100%;background:linear-gradient(90deg,var(--cyan),var(--purple));border-radius:999px;animation:fb 2s ease-in-out infinite}
+@keyframes fb{0%{width:0%}80%{width:100%}100%{width:100%}}
+.ld-txt{font-size:.83rem;color:var(--muted);font-family:'JetBrains Mono',monospace;letter-spacing:1px}
+.wrap{position:relative;z-index:1;max-width:1380px;margin:0 auto;padding:0 28px 80px}
+header{padding:36px 0 28px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:16px;border-bottom:1px solid var(--border);animation:sd .7s cubic-bezier(.22,1,.36,1) both}
+@keyframes sd{from{opacity:0;transform:translateY(-24px)}to{opacity:1;transform:translateY(0)}}
+.brand{display:flex;align-items:center;gap:16px}
+.brand-icon{width:52px;height:52px;border-radius:16px;background:linear-gradient(135deg,var(--cyan),var(--purple));display:flex;align-items:center;justify-content:center;font-size:24px;box-shadow:0 0 30px rgba(0,229,255,.3);animation:ip 4s ease-in-out infinite}
+@keyframes ip{0%,100%{box-shadow:0 0 30px rgba(0,229,255,.25)}50%{box-shadow:0 0 50px rgba(0,229,255,.5)}}
+.brand h1{font-size:1.6rem;font-weight:800;letter-spacing:-.5px}
+.brand h1 em{font-style:normal;background:linear-gradient(90deg,var(--cyan),var(--purple));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.brand p{font-size:.75rem;color:var(--muted);font-family:'JetBrains Mono',monospace;margin-top:2px}
+.hright{display:flex;gap:10px;flex-wrap:wrap}
+.pill{display:flex;align-items:center;gap:7px;padding:7px 15px;border-radius:999px;font-size:.78rem;font-weight:600;border:1px solid}
+.pill-g{background:rgba(34,211,160,.08);border-color:rgba(34,211,160,.3);color:var(--green)}
+.pill-p{background:rgba(168,85,247,.08);border-color:rgba(168,85,247,.3);color:var(--purple)}
+.dot{width:7px;height:7px;border-radius:50%;background:currentColor;animation:bk 1.4s ease-in-out infinite}
+@keyframes bk{0%,100%{opacity:1}50%{opacity:.15}}
+.mbar{display:flex;align-items:center;gap:8px;flex-wrap:wrap;padding:20px 0 4px;animation:ru .6s .1s cubic-bezier(.22,1,.36,1) both}
+@keyframes ru{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+.mlabel{font-size:.7rem;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;color:var(--muted);margin-right:4px}
+.mbtn{padding:9px 20px;border-radius:10px;border:1px solid var(--border2);background:var(--card);color:var(--soft);font-family:'Outfit',sans-serif;font-size:.85rem;font-weight:600;cursor:pointer;transition:all .2s}
+.mbtn:hover{color:var(--text);transform:translateY(-1px)}
+.mbtn.act-c{background:var(--cyan);border-color:var(--cyan);color:#000;font-weight:700;box-shadow:0 0 20px rgba(0,229,255,.35)}
+.mbtn.act-p{background:var(--purple);border-color:var(--purple);color:#fff;font-weight:700;box-shadow:0 0 20px rgba(168,85,247,.35)}
+.mbtn.act-g{background:var(--green);border-color:var(--green);color:#000;font-weight:700;box-shadow:0 0 20px rgba(34,211,160,.35)}
+.mbtn.act-a{background:var(--amber);border-color:var(--amber);color:#000;font-weight:700;box-shadow:0 0 20px rgba(251,191,36,.35)}
+.mbtn.act-h{background:linear-gradient(90deg,var(--cyan),var(--purple));border-color:transparent;color:#fff;font-weight:700;box-shadow:0 0 20px rgba(168,85,247,.4)}
+.sep{width:1px;height:28px;background:var(--border2);margin:0 4px}
+.tbtn{padding:8px 18px;border-radius:8px;border:1px solid var(--border2);background:var(--card);color:var(--soft);font-family:'Outfit',sans-serif;font-size:.83rem;font-weight:600;cursor:pointer;transition:all .2s}
+.tbtn:hover{color:var(--text)}
+.tbtn.act{background:rgba(0,229,255,.1);border-color:rgba(0,229,255,.4);color:var(--cyan)}
+.metrics{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin:20px 0 28px}
+.mc{background:var(--card);border:1px solid var(--border);border-radius:18px;padding:22px 24px;position:relative;overflow:hidden;transition:transform .25s,box-shadow .25s;animation:ru .5s ease both}
+.mc:hover{transform:translateY(-4px);box-shadow:0 12px 40px rgba(0,0,0,.4)}
+.mc-bar{position:absolute;top:0;left:0;right:0;height:3px;border-radius:18px 18px 0 0}
+.mc-lbl{font-size:.7rem;font-weight:700;text-transform:uppercase;letter-spacing:1.2px;color:var(--muted);margin-bottom:10px}
+.mc-val{font-size:2rem;font-weight:800;font-family:'JetBrains Mono',monospace;line-height:1}
+.mc-sub{font-size:.72rem;color:var(--muted);margin-top:5px}
+.mc.r2 .mc-bar{background:linear-gradient(90deg,#22d3a0,#0ea5e9)}
+.mc.r2 .mc-val{background:linear-gradient(90deg,#22d3a0,#0ea5e9);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.mc.mae .mc-bar{background:linear-gradient(90deg,#fbbf24,#f97316)}
+.mc.mae .mc-val{background:linear-gradient(90deg,#fbbf24,#f97316);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.mc.rmse .mc-bar{background:linear-gradient(90deg,#fb7185,#e11d48)}
+.mc.rmse .mc-val{background:linear-gradient(90deg,#fb7185,#e11d48);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.mc.samp .mc-bar{background:linear-gradient(90deg,#a855f7,#6366f1)}
+.mc.samp .mc-val{background:linear-gradient(90deg,#a855f7,#6366f1);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.sec{display:flex;align-items:center;gap:12px;margin:32px 0 16px}
+.sec-dot{width:10px;height:10px;border-radius:3px;flex-shrink:0}
+.sec-title{font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:2px;color:var(--soft)}
+.sec-line{flex:1;height:1px;background:linear-gradient(90deg,var(--border2),transparent)}
+.cgrid{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-bottom:20px}
+.cc{background:var(--card);border:1px solid var(--border);border-radius:18px;padding:24px;transition:border-color .2s,box-shadow .2s;animation:ru .5s ease both}
+.cc:hover{box-shadow:0 8px 32px rgba(0,0,0,.35)}
+.cc.full{grid-column:1/-1}
+.cc-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px}
+.cc-title{font-size:.82rem;font-weight:700;display:flex;align-items:center;gap:8px}
+.cc-dot{width:8px;height:8px;border-radius:50%}
+.cc-badge{font-size:.68rem;font-weight:600;padding:3px 10px;border-radius:6px;font-family:'JetBrains Mono',monospace;background:rgba(0,229,255,.1);color:var(--cyan);border:1px solid rgba(0,229,255,.2)}
+.cw{position:relative}
+.live-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:16px;margin-bottom:28px}
+.weather-card{background:linear-gradient(135deg,#0e1e30 0%,#0a1520 100%);border:1px solid var(--border);border-radius:16px;padding:28px;position:relative;overflow:hidden;transition:transform .2s,border-color .2s}
+.weather-card:hover{transform:translateY(-2px);border-color:var(--cyan)}
+.weather-card::before{content:'';position:absolute;top:-40px;right:-40px;width:120px;height:120px;border-radius:50%;background:radial-gradient(circle,rgba(0,229,255,.08) 0%,transparent 70%)}
+.wc-label{font-size:.65rem;letter-spacing:3px;text-transform:uppercase;color:var(--muted);margin-bottom:10px}
+.wc-value{font-family:'Outfit',sans-serif;font-size:2.8rem;font-weight:800;line-height:1;color:var(--cyan)}
+.wc-unit{font-size:1rem;color:var(--muted);margin-left:4px}
+.wc-sub{font-size:.7rem;color:var(--muted);margin-top:8px}
+.alert-banner{border-radius:12px;padding:16px 24px;display:flex;align-items:center;gap:16px;margin-bottom:24px;border:1px solid;font-size:.85rem;animation:slideIn .4s ease}
+@keyframes slideIn{from{opacity:0;transform:translateY(-10px)}to{opacity:1;transform:translateY(0)}}
+.alert-icon{font-size:1.4rem}
+.alert-level{font-family:'Outfit',sans-serif;font-weight:800;font-size:.9rem;letter-spacing:1px;text-transform:uppercase;margin-bottom:2px}
+.alert-msg{color:rgba(255,255,255,.75);font-size:.78rem}
+.live-wrap{background:var(--card);border:1px solid rgba(34,211,160,.2);border-radius:20px;padding:28px;margin-bottom:28px;position:relative;overflow:hidden;animation:ru .5s ease both}
+.live-wrap::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--cyan),var(--green),var(--purple));background-size:200%;animation:gs 4s linear infinite}
+@keyframes gs{0%{background-position:0%}100%{background-position:200%}}
+.live-top{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:16px;margin-bottom:24px}
+.live-top h2{font-size:1.1rem;font-weight:700}
+.live-top h2 span{color:var(--green)}
+.live-top p{font-size:.78rem;color:var(--muted);margin-top:4px}
+.predictor-grid{display:grid;grid-template-columns:1fr 1fr;gap:24px}
+@media(max-width:768px){.predictor-grid{grid-template-columns:1fr}}
+.igrid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin-bottom:20px}
+.ig{display:flex;flex-direction:column;gap:8px}
+.iglbl{font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--soft)}
+.irow{display:flex;align-items:center;background:rgba(0,0,0,.3);border:1px solid var(--border2);border-radius:12px;overflow:hidden;transition:border-color .2s}
+.irow:focus-within{border-color:var(--cyan)}
+.ibtn{width:40px;height:44px;background:rgba(255,255,255,.04);border:none;color:var(--soft);font-size:1.1rem;cursor:pointer;transition:all .15s}
+.ibtn:hover{background:rgba(0,229,255,.1);color:var(--cyan)}
+.ival{flex:1;text-align:center;font-family:'JetBrains Mono',monospace;font-size:1rem;font-weight:600;color:var(--text);background:transparent;border:none;outline:none;-moz-appearance:textfield}
+.ival::-webkit-inner-spin-button,.ival::-webkit-outer-spin-button{-webkit-appearance:none}
+.predbtn{width:100%;padding:14px;border-radius:14px;border:none;cursor:pointer;background:linear-gradient(135deg,var(--cyan),var(--purple));color:#000;font-family:'Outfit',sans-serif;font-size:1rem;font-weight:800;letter-spacing:.5px;transition:all .25s}
+.predbtn:hover{transform:translateY(-2px);box-shadow:0 8px 30px rgba(0,229,255,.35)}
+.predbtn:active{transform:translateY(0)}
+.pred-result{margin-top:20px;display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.pred-chip{background:rgba(0,0,0,.3);border:1px solid var(--border2);border-radius:10px;padding:20px;text-align:center;animation:pi .35s ease both}
+@keyframes pi{from{opacity:0;transform:scale(.9)}to{opacity:1;transform:scale(1)}}
+.pred-chip .label{font-size:.6rem;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:8px}
+.pred-chip .val{font-family:'Outfit',sans-serif;font-size:2rem;font-weight:800;color:var(--cyan)}
+.pred-chip.humidity .val{color:#7c3aff}
+#rInfo{font-size:.75rem;color:var(--muted);margin-top:14px;text-align:center}
+.export-panel{background:var(--card);border:1px solid var(--border2);border-radius:16px;padding:24px}
+.export-panel-title{font-family:'Outfit',sans-serif;font-size:.85rem;font-weight:600;letter-spacing:2px;text-transform:uppercase;color:#ffffff;margin-bottom:20px}
+.export-note{margin-top:16px;padding:12px;background:rgba(0,0,0,.3);border-radius:8px;font-size:.68rem;color:var(--muted);line-height:1.6}
+.table-wrap{overflow-x:auto;margin-bottom:28px}
+.table-card{background:transparent;border:1px solid var(--border);border-radius:18px;overflow:hidden;padding:0}
+table{width:100%;border-collapse:collapse;font-size:.95rem}
+thead th{font-family:'Outfit',sans-serif;font-weight:600;font-size:.65rem;letter-spacing:2px;text-transform:uppercase;color:var(--muted);padding:10px 16px;text-align:left;border-bottom:1px solid var(--border);white-space:nowrap;background:transparent}
+tbody tr{border-bottom:1px solid rgba(30,47,66,.5);transition:background .15s;background:transparent}
+tbody tr:hover{background:rgba(0,229,255,.03)}
+tbody td{padding:12px 16px;color:var(--text);white-space:nowrap;background:transparent}
+.badge-model{display:inline-block;padding:5px 14px;border-radius:20px;font-size:.82rem;font-weight:700;letter-spacing:.5px;border:1px solid}
+.r2-bar{display:flex;align-items:center;gap:10px}
+.r2-track{width:80px;height:4px;background:transparent;border-radius:2px;overflow:hidden;border:1px solid var(--border)}
+.r2-fill{height:100%;border-radius:2px;background:linear-gradient(90deg,var(--accent2),var(--accent));transition:width .6s ease}
+.best-badge{font-size:.6rem;letter-spacing:1px;color:var(--warn);text-transform:uppercase;margin-left:6px}
+.iselect{width:100%;height:44px;background:rgba(0,0,0,.3);border:1px solid var(--border2);border-radius:12px;color:var(--text);font-family:'Outfit',sans-serif;font-size:.9rem;font-weight:600;padding:0 14px;outline:none;cursor:pointer;transition:border-color .2s;-webkit-appearance:none;appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%234a6080' stroke-width='1.5' fill='none'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 14px center}
+.iselect:focus{border-color:var(--cyan)}
+.iselect option{background:#0f1729;color:var(--text)}
+::-webkit-scrollbar{width:5px}
+::-webkit-scrollbar-track{background:var(--bg)}
+::-webkit-scrollbar-thumb{background:var(--border2);border-radius:3px}
+@media(max-width:900px){.cgrid,.igrid,.metrics{grid-template-columns:1fr 1fr}.cc.full{grid-column:1}}
+@media(max-width:600px){.cgrid,.igrid,.metrics{grid-template-columns:1fr}.cc.full{grid-column:1}}
+</style>
+</head>
+<body>
+
+<div id="loader">
+  <div class="ld-icon">🔮</div>
+  <div class="ld-bar"><div class="ld-fill"></div></div>
+  <div class="ld-txt">initialising climate models...</div>
+</div>
+
+<canvas id="bg"></canvas>
+
+<div class="wrap">
+
+<header>
+  <div class="brand">
+    <div class="brand-icon">🔮</div>
+    <div>
+      <h1>Climate <em>ML Dashboard</em></h1>
+      <p>coimbatore &middot; vpd &amp; humidity prediction &middot; 4 models + hybrid</p>
+    </div>
+  </div>
+  <div class="hright">
+    <div class="pill pill-p">&#128205; Coimbatore, TN</div>
+    <div class="pill pill-g"><div class="dot"></div>Live · Updated Now</div>
+  </div>
+</header>
+
+<div class="mbar">
+  <span class="mlabel">Model</span>
+  <button class="mbtn act-c" onclick="setModel('SVR (RBF)','act-c',this)">SVR</button>
+  <button class="mbtn" onclick="setModel('Polynomial SVM','act-p',this)">Polynomial</button>
+  <button class="mbtn" onclick="setModel('Gradient Boosting','act-g',this)">Gradient Boost</button>
+  <button class="mbtn" onclick="setModel('AdaBoost','act-a',this)">AdaBoost</button>
+  <button class="mbtn" onclick="setModel('Hybrid','act-h',this)">&#128300; Hybrid</button>
+  <div class="sep"></div>
+  <span class="mlabel">Target</span>
+  <button class="tbtn act" onclick="setTarget('VPD',this)">VPD</button>
+  <button class="tbtn" onclick="setTarget('Humidity',this)">Humidity</button>
+</div>
+
+<div class="metrics">
+  <div class="mc r2">  <div class="mc-bar"></div><div class="mc-lbl">R&#178; Score</div>   <div class="mc-val" id="vR2">---</div>  <div class="mc-sub">Coefficient of determination</div></div>
+  <div class="mc mae"> <div class="mc-bar"></div><div class="mc-lbl">MAE</div>              <div class="mc-val" id="vMAE">---</div> <div class="mc-sub">Mean absolute error</div></div>
+  <div class="mc rmse"><div class="mc-bar"></div><div class="mc-lbl">RMSE</div>             <div class="mc-val" id="vRMSE">---</div><div class="mc-sub">Root mean squared error</div></div>
+  <div class="mc samp"><div class="mc-bar"></div><div class="mc-lbl">Test Samples</div>     <div class="mc-val" id="vSamp">---</div><div class="mc-sub">20% hold-out split</div></div>
+</div>
+
+<div class="sec"><div class="sec-dot" style="background:var(--green)"></div><span class="sec-title">Live Conditions</span><div class="sec-line"></div></div>
+<div class="live-grid" id="liveGrid">
+  <div class="weather-card"><div class="wc-label">Loading...</div><div class="wc-value" style="font-size:1.5rem;color:var(--muted)">—</div></div>
+  <div class="weather-card"><div class="wc-label">Loading...</div><div class="wc-value" style="font-size:1.5rem;color:var(--muted)">—</div></div>
+  <div class="weather-card"><div class="wc-label">Loading...</div><div class="wc-value" style="font-size:1.5rem;color:var(--muted)">—</div></div>
+  <div class="weather-card"><div class="wc-label">Loading...</div><div class="wc-value" style="font-size:1.5rem;color:var(--muted)">—</div></div>
+</div>
+<div id="alertBanner"></div>
+
+<div class="sec"><div class="sec-dot" style="background:var(--cyan)"></div><span class="sec-title">Model Performance</span><div class="sec-line"></div></div>
+<div class="cgrid">
+  <div class="cc full">
+    <div class="cc-head">
+      <div class="cc-title"><div class="cc-dot" style="background:var(--cyan)"></div>Actual vs Predicted</div>
+      <div class="cc-badge" id="apBadge">SVR &middot; VPD</div>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:18px">
+      <div>
+        <div style="font-size:.72rem;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:4px">VPD Prediction</div>
+        <div style="font-size:.65rem;color:#3a5570;margin-bottom:12px">Selected model · Test set · kPa</div>
+        <div class="cw" style="height:240px"><canvas id="cAP_VPD"></canvas></div>
+      </div>
+      <div>
+        <div style="font-size:.72rem;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:4px">Humidity Prediction</div>
+        <div style="font-size:.65rem;color:#3a5570;margin-bottom:12px">Selected model · Test set · %RH</div>
+        <div class="cw" style="height:240px"><canvas id="cAP_HUM"></canvas></div>
+      </div>
+    </div>
+  </div>
+  <div class="cc">
+    <div class="cc-head">
+      <div class="cc-title"><div class="cc-dot" style="background:var(--purple)"></div>VPD — All Models R&#178;</div>
+      <div class="cc-badge" style="background:rgba(168,85,247,.1);color:var(--purple);border-color:rgba(168,85,247,.2)">Comparison</div>
+    </div>
+    <div class="cw" style="height:240px"><canvas id="cCMP_VPD"></canvas></div>
+  </div>
+  <div class="cc">
+    <div class="cc-head">
+      <div class="cc-title"><div class="cc-dot" style="background:var(--green)"></div>Humidity — All Models R&#178;</div>
+      <div class="cc-badge" style="background:rgba(34,211,160,.1);color:var(--green);border-color:rgba(34,211,160,.2)">Comparison</div>
+    </div>
+    <div class="cw" style="height:240px"><canvas id="cCMP_HUM"></canvas></div>
+  </div>
+</div>
+
+<div class="sec"><div class="sec-dot" style="background:var(--amber)"></div><span class="sec-title">Predict &amp; Export</span><div class="sec-line"></div></div>
+<div class="live-wrap">
+  <div class="predictor-grid">
+
+    <!-- LEFT: Prediction -->
+    <div>
+      <div class="live-top" style="margin-bottom:18px">
+        <div>
+          <h2>Select Algorithm &amp; Date &rarr; <span>Get Prediction</span></h2>
+          <p>Choose your algorithm, enter the date, then click Run Prediction</p>
+        </div>
+        <div class="pill pill-g"><div class="dot"></div>Single Model Mode</div>
+      </div>
+      <div class="igrid" style="grid-template-columns:repeat(4,1fr)">
+        <div class="ig">
+          <div class="iglbl">&#129302; Algorithm</div>
+          <select class="iselect" id="inModel">
+            <option value="SVR (RBF)">SVR</option>
+            <option value="Polynomial SVM">Polynomial</option>
+            <option value="Gradient Boosting">Gradient Boosting</option>
+            <option value="AdaBoost">AdaBoost</option>
+            <option value="Hybrid">Hybrid Model</option>
+          </select>
+        </div>
+        <div class="ig">
+          <div class="iglbl">&#128197; Year</div>
+          <div class="irow">
+            <button class="ibtn" onclick="adjYear(-1)">&#8722;</button>
+            <input class="ival" type="number" id="inYear" value="2026" min="1999" max="2100"/>
+            <button class="ibtn" onclick="adjYear(1)">&#43;</button>
+          </div>
+        </div>
+        <div class="ig">
+          <div class="iglbl">&#128198; Month</div>
+          <select class="iselect" id="inMonth" onchange="updDoy()">
+            <option value="1">January</option><option value="2">February</option>
+            <option value="3">March</option><option value="4">April</option>
+            <option value="5">May</option><option value="6" selected>June</option>
+            <option value="7">July</option><option value="8">August</option>
+            <option value="9">September</option><option value="10">October</option>
+            <option value="11">November</option><option value="12">December</option>
+          </select>
+        </div>
+        <div class="ig">
+          <div class="iglbl">&#128197; Date</div>
+          <div class="irow">
+            <button class="ibtn" onclick="adjDate(-1)">&#8722;</button>
+            <input class="ival" type="number" id="inDate" value="15" min="1" max="31"/>
+            <button class="ibtn" onclick="adjDate(1)">&#43;</button>
+          </div>
+        </div>
+      </div>
+      <div style="background:rgba(0,229,255,.05);border:1px solid rgba(0,229,255,.15);border-radius:12px;padding:12px 18px;margin-bottom:18px;display:flex;align-items:center;gap:12px">
+        <span style="font-size:.75rem;color:var(--muted);text-transform:uppercase;letter-spacing:1px">Calculated DOY</span>
+        <span id="doyDisplay" style="font-family:JetBrains Mono,monospace;font-size:1.1rem;font-weight:700;color:var(--cyan)">167</span>
+        <span style="font-size:.72rem;color:var(--muted)">Day of year (auto-calculated from date)</span>
+      </div>
+      <button class="predbtn" id="predBtn" onclick="predict()">&#9889; Run Prediction</button>
+      <div id="rGrid" style="display:none">
+        <div id="rModelName" style="font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:1px;margin:16px 0 8px;text-align:center"></div>
+        <div class="pred-result">
+          <div class="pred-chip"><div class="label">VPD (kPa)</div><div class="val" id="rVPD">—</div></div>
+          <div class="pred-chip humidity"><div class="label">Humidity (%)</div><div class="val" id="rHUM">—</div></div>
+        </div>
+        <div id="rInfo"></div>
+        <div id="predAlert" style="margin-top:12px"></div>
+      </div>
+    </div>
+
+    <!-- RIGHT: CSV Export -->
+    <div class="export-panel">
+      <div class="export-panel-title">&#11015; Export Predictions as CSV</div>
+
+      <div class="ig" style="margin-bottom:14px">
+        <div class="iglbl">&#129302; Algorithm</div>
+        <select class="iselect" id="e_model">
+          <option value="Hybrid" selected>Hybrid Model</option>
+          <option value="Gradient Boosting">Gradient Boosting</option>
+          <option value="SVR (RBF)">SVR</option>
+          <option value="AdaBoost">AdaBoost</option>
+          <option value="Polynomial SVM">Polynomial</option>
+        </select>
+      </div>
+
+      <div class="igrid" style="grid-template-columns:1fr 1fr;margin-bottom:14px">
+        <div class="ig">
+          <div class="iglbl">&#128197; Year Start</div>
+          <div class="irow">
+            <button class="ibtn" onclick="adjExportYear('e_year_start',-1)">&#8722;</button>
+            <input class="ival" type="number" id="e_year_start" value="2026" min="1999" max="2100"/>
+            <button class="ibtn" onclick="adjExportYear('e_year_start',1)">&#43;</button>
+          </div>
+        </div>
+        <div class="ig">
+          <div class="iglbl">&#128197; Year End</div>
+          <div class="irow">
+            <button class="ibtn" onclick="adjExportYear('e_year_end',-1)">&#8722;</button>
+            <input class="ival" type="number" id="e_year_end" value="2026" min="1999" max="2100"/>
+            <button class="ibtn" onclick="adjExportYear('e_year_end',1)">&#43;</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="igrid" style="grid-template-columns:1fr 1fr;margin-bottom:14px">
+        <div class="ig">
+          <div class="iglbl">&#128198; Month Start</div>
+          <select class="iselect" id="e_month_start" onchange="updExportDoy()">
+            <option value="1">January</option><option value="2">February</option>
+            <option value="3">March</option><option value="4">April</option>
+            <option value="5">May</option><option value="6">June</option>
+            <option value="7">July</option><option value="8">August</option>
+            <option value="9">September</option><option value="10">October</option>
+            <option value="11">November</option><option value="12">December</option>
+          </select>
+        </div>
+        <div class="ig">
+          <div class="iglbl">&#128198; Month End</div>
+          <select class="iselect" id="e_month_end" onchange="updExportDoy()">
+            <option value="1">January</option><option value="2">February</option>
+            <option value="3">March</option><option value="4">April</option>
+            <option value="5">May</option><option value="6">June</option>
+            <option value="7">July</option><option value="8">August</option>
+            <option value="9">September</option><option value="10">October</option>
+            <option value="11">November</option><option value="12" selected>December</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="igrid" style="grid-template-columns:1fr 1fr;margin-bottom:14px">
+        <div class="ig">
+          <div class="iglbl">&#128197; Date Start</div>
+          <div class="irow">
+            <button class="ibtn" onclick="adjExportDate('e_date_start',-1)">&#8722;</button>
+            <input class="ival" type="number" id="e_date_start" value="1" min="1" max="31"/>
+            <button class="ibtn" onclick="adjExportDate('e_date_start',1)">&#43;</button>
+          </div>
+        </div>
+        <div class="ig">
+          <div class="iglbl">&#128197; Date End</div>
+          <div class="irow">
+            <button class="ibtn" onclick="adjExportDate('e_date_end',-1)">&#8722;</button>
+            <input class="ival" type="number" id="e_date_end" value="31" min="1" max="31"/>
+            <button class="ibtn" onclick="adjExportDate('e_date_end',1)">&#43;</button>
+          </div>
+        </div>
+      </div>
+
+      <button class="predbtn" onclick="exportCSV()">&#11015; Download CSV</button>
+      <div class="export-note">Exports daily VPD &amp; Humidity predictions for the selected date range. Each row includes year, DOY, date, predictions, VPD stress level and alert message.</div>
+    </div>
+
+  </div>
+</div>
+
+<div class="sec"><div class="sec-dot" style="background:var(--rose)"></div><span class="sec-title">All Models Summary</span><div class="sec-line"></div></div>
+<div class="table-wrap">
+  <div class="table-card">
+    <table>
+      <thead><tr><th>Model</th><th>Target</th><th>R&#178; Score</th><th>MAE</th><th>RMSE</th><th>Rating</th></tr></thead>
+      <tbody id="tBody"><tr><td colspan="6" style="text-align:center;padding:24px;color:var(--muted)">Loading models…</td></tr></tbody>
+    </table>
+  </div>
+</div>
+
+</div>
+
+<script>
+var DATA=null, LIVE_DATA=null;
+var AM="SVR (RBF)", AT="VPD";
+var charts={};
+var MC={"SVR (RBF)":"#00e5ff","Polynomial SVM":"#a855f7","Gradient Boosting":"#22d3a0","AdaBoost":"#fbbf24","Hybrid":"#fb7185"};
+var MN={"SVR (RBF)":"SVR","Polynomial SVM":"Polynomial","Gradient Boosting":"Gradient Boosting","AdaBoost":"AdaBoost","Hybrid":"Hybrid"};
+var ALERT_ICONS={optimal:'🌱',low:'✅',medium:'⚠️',high:'🔴',severe:'🚨'};
+
+// Constellation animation
+(function(){
+  var c=document.getElementById('bg');
+  var ctx=c.getContext('2d');
+  var W,H,stars=[];
+  function createStar(){
+    return {x:Math.random()*W,y:Math.random()*H,
+      vx:(Math.random()-.5)*0.45,vy:(Math.random()-.5)*0.45,
+      r:Math.random()*0.8+0.3,opacity:Math.random()*0.6+0.2,
+      twinkle:Math.random()*Math.PI*2,twinkleSpeed:Math.random()*0.05+0.02,
+      col:'255,255,255'};
+  }
+  function resize(){
+    W=c.width=window.innerWidth; H=c.height=window.innerHeight; stars=[];
+    var count=Math.floor((W*H)/18000);
+    for(var i=0;i<count;i++) stars.push(createStar());
+  }
+  function draw(){
+    ctx.clearRect(0,0,W,H);
+    for(var i=0;i<stars.length;i++){
+      var s=stars[i];
+      s.twinkle+=s.twinkleSpeed;
+      var op=s.opacity+Math.sin(s.twinkle)*0.25;
+      op=Math.max(0.05,Math.min(1,op));
+      var glow=ctx.createRadialGradient(s.x,s.y,0,s.x,s.y,s.r*8);
+      glow.addColorStop(0,'rgba('+s.col+','+(op*0.9)+')');
+      glow.addColorStop(1,'rgba('+s.col+',0)');
+      ctx.beginPath();ctx.arc(s.x,s.y,s.r*8,0,Math.PI*2);ctx.fillStyle=glow;ctx.fill();
+      ctx.beginPath();ctx.arc(s.x,s.y,s.r,0,Math.PI*2);ctx.fillStyle='rgba('+s.col+','+op+')';ctx.fill();
+      s.x+=s.vx; s.y+=s.vy;
+      if(s.x<0)s.x=W; if(s.x>W)s.x=0; if(s.y<0)s.y=H; if(s.y>H)s.y=0;
+    }
+    requestAnimationFrame(draw);
+  }
+  window.addEventListener('resize',resize); resize(); draw();
+})();
+
+var chartDefaults={
+  responsive:true,maintainAspectRatio:false,
+  plugins:{
+    legend:{labels:{color:'#5a7a99',font:{size:10},boxWidth:12}},
+    tooltip:{backgroundColor:'#0e1620',borderColor:'#1e2f42',borderWidth:1,titleColor:'#e8f4ff',bodyColor:'#5a7a99'}
+  },
+  scales:{
+    x:{ticks:{color:'#3a5570',maxTicksLimit:8,font:{size:9}},grid:{color:'#1e2f42'}},
+    y:{ticks:{color:'#3a5570',font:{size:9}},grid:{color:'#1e2f42'}}
+  }
+};
+
+function setModel(m,cls,btn){
+  document.querySelectorAll('.mbtn').forEach(function(b){b.className='mbtn';});
+  btn.className='mbtn '+cls;
+  AM=m; renderAll();
+  if(LIVE_DATA) renderLive(LIVE_DATA);
+}
+function setTarget(t,btn){
+  document.querySelectorAll('.tbtn').forEach(function(b){b.className='tbtn';});
+  btn.className='tbtn act';
+  AT=t; renderAll();
+}
+
+function renderAll(){
+  if(!DATA) return;
+  var d=DATA[AM]&&DATA[AM][AT];
+  if(!d) return;
+  document.getElementById('vR2').textContent=d.r2.toFixed(4);
+  document.getElementById('vMAE').textContent=d.mae.toFixed(4);
+  document.getElementById('vRMSE').textContent=d.rmse.toFixed(4);
+  document.getElementById('vSamp').textContent=d.actual.length.toLocaleString();
+  document.getElementById('apBadge').textContent=MN[AM]+' \u00b7 '+AT;
+  drawAP(); drawCMP();
+}
+
+function drawAP(){
+  ['VPD','HUM'].forEach(function(tid){
+    var tname=tid==='VPD'?'VPD':'Humidity';
+    var canvasId='cAP_'+tid;
+    var d=DATA[AM]&&DATA[AM][tname];
+    if(!d){kill(canvasId);return;}
+    var step=Math.max(1,Math.floor(d.actual.length/200));
+    var idx=[],act=[],pred=[];
+    for(var i=0;i<d.actual.length;i+=step){idx.push(i);act.push(d.actual[i]);pred.push(d.pred[i]);}
+    kill(canvasId);
+    var ctx=document.getElementById(canvasId).getContext('2d');
+    var opts=JSON.parse(JSON.stringify(chartDefaults));
+    charts[canvasId]=new Chart(ctx,{type:'line',data:{labels:idx,datasets:[
+      {label:'Actual',data:act,borderColor:'#00e5ff',backgroundColor:'rgba(0,229,255,0.05)',borderWidth:1.5,pointRadius:0,tension:.3},
+      {label:'Predicted',data:pred,borderColor:'#ff4444',backgroundColor:'rgba(255,68,68,0.05)',borderWidth:1.5,pointRadius:0,tension:.3,borderDash:[4,2]}
+    ]},options:opts});
+  });
+}
+
+function drawCMP(){
+  var mods=Object.keys(MC);
+  var colors=mods.map(function(m){return MC[m];});
+  ['VPD','Humidity'].forEach(function(tname){
+    var canvasId=tname==='VPD'?'cCMP_VPD':'cCMP_HUM';
+    var r2s=mods.map(function(m){return DATA[m]&&DATA[m][tname]?DATA[m][tname].r2:0;});
+    kill(canvasId);
+    var ctx=document.getElementById(canvasId).getContext('2d');
+    var opts=JSON.parse(JSON.stringify(chartDefaults));
+    opts.scales.y.min=0; opts.scales.y.max=1;
+    charts[canvasId]=new Chart(ctx,{type:'bar',
+      data:{labels:mods.map(function(m){return MN[m];}),
+        datasets:[{label:'R\u00b2 Score',data:r2s,backgroundColor:colors.map(function(c){return c+'88';}),borderColor:colors,borderWidth:1.5,borderRadius:6}]},
+      options:opts});
+  });
+}
+
+function renderLive(d){
+  var hybridVPD=d.predictions&&d.predictions.Hybrid?d.predictions.Hybrid.VPD:'—';
+  var hybridHum=d.predictions&&d.predictions.Hybrid?d.predictions.Hybrid.Humidity:'—';
+  document.getElementById('liveGrid').innerHTML=
+    '<div class="weather-card"><div class="wc-label">Today\'s Temperature</div><div class="wc-value">'+d.temperature+'<span class="wc-unit">°C</span></div><div class="wc-sub">📍 Coimbatore · '+d.date+'</div></div>'+
+    '<div class="weather-card"><div class="wc-label">Live Humidity</div><div class="wc-value" style="color:#7c3aff">'+d.humidity_live+'<span class="wc-unit">%</span></div><div class="wc-sub">Relative humidity at 2m</div></div>'+
+    '<div class="weather-card"><div class="wc-label">Predicted VPD</div><div class="wc-value">'+hybridVPD+'<span class="wc-unit">kPa</span></div><div class="wc-sub">Hybrid model · DOY '+d.doy+' · '+d.year+'</div></div>'+
+    '<div class="weather-card"><div class="wc-label">Predicted Humidity</div><div class="wc-value" style="color:#00d68f">'+hybridHum+'<span class="wc-unit">%</span></div><div class="wc-sub">Hybrid model · DOY '+d.doy+' · '+d.year+'</div></div>';
+  if(d.vpd_alert) renderAlertBanner(d.vpd_alert,hybridVPD);
+}
+
+function renderAlertBanner(alert,vpd){
+  var icon=ALERT_ICONS[alert.level]||'⚠️';
+  document.getElementById('alertBanner').innerHTML=
+    '<div class="alert-banner" style="background:'+alert.color+'18;border-color:'+alert.color+'55;margin-bottom:8px">'+
+    '<span class="alert-icon">'+icon+'</span>'+
+    '<div><div class="alert-level" style="color:'+alert.color+'">'+alert.label+' — VPD '+vpd+' kPa</div>'+
+    '<div class="alert-msg">'+alert.message+'</div></div></div>';
+}
+
+function buildTable(){
+  var mods=['SVR (RBF)','Polynomial SVM','Gradient Boosting','AdaBoost','Hybrid'];
+  var targets=['VPD','Humidity'];
+  var rows=[];
+  for(var ti=0;ti<targets.length;ti++){
+    var t=targets[ti];
+    var bestR2=0,bestModel='';
+    for(var mi=0;mi<mods.length;mi++){var r2=DATA[mods[mi]]&&DATA[mods[mi]][t]?DATA[mods[mi]][t].r2:0;if(r2>bestR2){bestR2=r2;bestModel=mods[mi];}}
+    for(var mi=0;mi<mods.length;mi++){
+      var m=mods[mi]; var d=DATA[m]&&DATA[m][t]; if(!d) continue;
+      var color=MC[m]||'#aaa'; var isBest=m===bestModel;
+      var r2pct=Math.round(d.r2*100);
+      var stars=d.r2>0.9?'★★★':d.r2>0.8?'★★☆':'★☆☆';
+      var starColor=d.r2>0.9?'var(--success)':d.r2>0.8?'var(--warn)':'var(--muted)';
+      rows.push('<tr>'+
+        '<td><span class="badge-model" style="color:'+color+';border-color:'+color+'40;background:'+color+'12;">'+m+'</span></td>'+
+        '<td style="color:var(--muted)">'+t+'</td>'+
+        '<td><div class="r2-bar"><div class="r2-track"><div class="r2-fill" style="width:'+r2pct+'%"></div></div><span>'+d.r2+'</span>'+(isBest?'<span class="best-badge">Best</span>':'')+'</div></td>'+
+        '<td style="color:#aac">'+d.mae+'</td>'+
+        '<td style="color:#aac">'+d.rmse+'</td>'+
+        '<td style="color:'+starColor+';letter-spacing:2px">'+stars+'</td></tr>');
+    }
+    if(ti<targets.length-1) rows.push('<tr><td colspan="6" style="height:4px;background:var(--bg);padding:0;border:none;"></td></tr>');
+  }
+  document.getElementById('tBody').innerHTML=rows.join('');
+}
+
+function adjYear(delta){var el=document.getElementById('inYear');el.value=parseInt(el.value)+delta;updDoy();}
+function adjDate(delta){var el=document.getElementById('inDate');var v=parseInt(el.value)+delta;if(v<1)v=1;if(v>31)v=31;el.value=v;updDoy();}
+function updDoy(){
+  var year=parseInt(document.getElementById('inYear').value)||2026;
+  var month=parseInt(document.getElementById('inMonth').value)||1;
+  var date=parseInt(document.getElementById('inDate').value)||1;
+  var d=new Date(year,month-1,date); var start=new Date(year,0,0);
+  var doy=Math.floor((d-start)/(1000*60*60*24));
+  if(doy<1)doy=1; if(doy>365)doy=365;
+  document.getElementById('doyDisplay').textContent=doy;
+}
+
+function predict(){
+  var year=document.getElementById('inYear').value;
+  var month=document.getElementById('inMonth').value;
+  var date=document.getElementById('inDate').value;
+  var model=document.getElementById('inModel').value;
+  var doy=parseInt(document.getElementById('doyDisplay').textContent)||180;
+  var btn=document.getElementById('predBtn');
+  btn.textContent='Predicting...'; btn.disabled=true;
+  var mnames=['January','February','March','April','May','June','July','August','September','October','November','December'];
+  fetch('/api/predict?year='+year+'&doy='+doy+'&t2m=28&model='+encodeURIComponent(model))
+    .then(function(r){return r.json();})
+    .then(function(res){
+      btn.textContent='⚡ Run Prediction'; btn.disabled=false;
+      var col=MC[model];
+      var p=res.predictions[model]||{};
+      var vpd=p.VPD!==undefined?p.VPD:'—';
+      var hum=p.Humidity!==undefined?p.Humidity:'—';
+      document.getElementById('rGrid').style.display='block';
+      document.getElementById('rModelName').style.color=col;
+      document.getElementById('rModelName').textContent=MN[model]+' Prediction Results';
+      document.getElementById('rVPD').style.color=col;
+      document.getElementById('rVPD').textContent=vpd;
+      document.getElementById('rHUM').textContent=hum;
+      document.getElementById('rInfo').textContent='Date: '+date+' '+mnames[parseInt(month)-1]+' '+year+'  |  DOY: '+doy+'  |  Algorithm: '+MN[model];
+      if(res.vpd_alert){
+        var a=res.vpd_alert; var icon=ALERT_ICONS[a.level]||'⚠️';
+        document.getElementById('predAlert').innerHTML=
+          '<div class="alert-banner" style="background:'+a.color+'18;border-color:'+a.color+'55;">'+
+          '<span class="alert-icon">'+icon+'</span>'+
+          '<div><div class="alert-level" style="color:'+a.color+'">'+a.label+'</div>'+
+          '<div class="alert-msg">'+a.message+'</div></div></div>';
+      } else { document.getElementById('predAlert').innerHTML=''; }
+    });
+}
+
+function adjExportYear(id,delta){var el=document.getElementById(id);el.value=parseInt(el.value)+delta;updExportDoy();}
+function adjExportDate(id,delta){var el=document.getElementById(id);var v=parseInt(el.value)+delta;if(v<1)v=1;if(v>31)v=31;el.value=v;updExportDoy();}
+function updExportDoy(){
+  var year=parseInt(document.getElementById('e_year_start').value)||2026;
+  var ms=parseInt(document.getElementById('e_month_start').value)||1;
+  var me=parseInt(document.getElementById('e_month_end').value)||12;
+  var ds=parseInt(document.getElementById('e_date_start').value)||1;
+  var de=parseInt(document.getElementById('e_date_end').value)||31;
+  function toDoy(y,m,d){var start=new Date(y,0,0);var dt=new Date(y,m-1,d);return Math.floor((dt-start)/(1000*60*60*24));}
+  var doyStart=toDoy(year,ms,ds); var doyEnd=toDoy(year,me,de);
+  if(doyStart<1)doyStart=1; if(doyEnd>365)doyEnd=365;
+  document.getElementById('e_doy_display').textContent=doyStart+' \u2192 '+doyEnd;
+}
+
+function exportCSV(){
+  var ys=document.getElementById('e_year_start').value;
+  var ye=document.getElementById('e_year_end').value;
+  var model=document.getElementById('e_model').value;
+  var ms=parseInt(document.getElementById('e_month_start').value)||1;
+  var me=parseInt(document.getElementById('e_month_end').value)||12;
+  var ds=parseInt(document.getElementById('e_date_start').value)||1;
+  var de=parseInt(document.getElementById('e_date_end').value)||31;
+  function toDoy(y,m,d){var start=new Date(y,0,0);var dt=new Date(y,m-1,d);return Math.floor((dt-start)/(1000*60*60*24));}
+  var doyStart=toDoy(parseInt(ys),ms,ds);
+  var doyEnd=toDoy(parseInt(ys),me,de);
+  if(doyStart<1)doyStart=1; if(doyEnd>365)doyEnd=365;
+  var url='/api/export_csv?year_start='+ys+'&year_end='+ye+'&doy_start='+doyStart+'&doy_end='+doyEnd+'&model='+encodeURIComponent(model);
+  var a=document.createElement('a'); a.href=url; a.download=''; document.body.appendChild(a); a.click(); a.remove();
+}
+
+function kill(id){if(charts[id]){charts[id].destroy();delete charts[id];}}
+
+Promise.all([
+  fetch('/api/live').then(function(r){return r.json();}).catch(function(){return null;}),
+  fetch('/api/data').then(function(r){return r.json();}).catch(function(){return null;})
+]).then(function(results){
+  var liveData=results[0]; var modelData=results[1];
+  if(liveData){LIVE_DATA=liveData; renderLive(liveData);}
+  if(modelData){DATA=modelData; buildTable(); renderAll();}
+  var loader=document.getElementById('loader');
+  loader.style.opacity='0';
+  setTimeout(function(){loader.style.display='none';},500);
+});
+</script>
+</body>
+</html>

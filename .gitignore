@@ -1,0 +1,8 @@
+trained_models.pkl
+__pycache__/
+*.pyc
+.env
+*.egg-info/
+dist/
+build/
+.DS_Store
